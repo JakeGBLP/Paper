@@ -65,10 +65,10 @@ public class DataComponentTypesRewriter extends RegistryFieldRewriter<DataCompon
         TokenType.SINGLE_COMMENT
     );
 
-    private @MonotonicNonNull Map<String, List<String>> javadocsPerConstant;
+    private @MonotonicNonNull Map<String, CharSequenceBlockToken> javadocsPerConstant;
 
-    private Map<String, List<String>> parseConstantJavadocs(String content) {
-        Map<String, List<String>> map = new HashMap<>();
+    private Map<String, CharSequenceBlockToken> parseConstantJavadocs(String content) {
+        Map<String, CharSequenceBlockToken> map = new HashMap<>();
 
         Lexer lex = new Lexer(content.toCharArray());
         SequenceTokens.wrap(lex, FORMAT_TOKENS)
@@ -76,7 +76,7 @@ public class DataComponentTypesRewriter extends RegistryFieldRewriter<DataCompon
                 ConstantInfo info = new ConstantInfo();
                 action
                     .map(TokenType.JAVADOC, token -> {
-                        info.javadocs(((CharSequenceBlockToken) token).value());
+                        info.javadocs(((CharSequenceBlockToken) token));
                     }, TokenTaskBuilder::asOptional)
                     .skip(TokenType.PUBLIC).skip(TokenType.STATIC).skip(TokenType.FINAL)
                     .skipQualifiedName(Predicate.isEqual(TokenType.JAVADOC))
@@ -144,20 +144,11 @@ public class DataComponentTypesRewriter extends RegistryFieldRewriter<DataCompon
     }
 
     @Override
-    protected void rewriteJavadocs(Holder.Reference<DataComponentType<?>> reference, String indent, StringBuilder builder) {
+    protected void rewriteJavadocs(Holder.Reference<DataComponentType<?>> reference, String replacedContent, String indent, StringBuilder builder) {
         String constantName = this.rewriteFieldName(reference);
         if (this.javadocsPerConstant.containsKey(constantName)) {
-            builder.append(indent).append("/**");
-            builder.append('\n');
-            for (String line : this.javadocsPerConstant.get(constantName)) {
-                builder.append(indent).append(" *");
-                if (!line.isEmpty()) {
-                    builder.append(' ').append(line);
-                }
-                builder.append('\n');
-            }
-            builder.append(indent).append(" */");
-            builder.append('\n');
+            CharSequenceBlockToken token = this.javadocsPerConstant.get(constantName);
+            builder.append(indent).append(replacedContent, token.pos(), token.endPos()).append('\n');
         }
     }
 

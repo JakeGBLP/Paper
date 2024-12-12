@@ -1,30 +1,30 @@
 package io.papermc.generator.rewriter.types.simple.trial;
 
-import java.util.List;
+import io.papermc.typewriter.parser.token.CharSequenceBlockToken;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 class ConstantInfo {
 
     private @MonotonicNonNull String constantName;
-    private @MonotonicNonNull List<String> javadocs;
+    private @MonotonicNonNull CharSequenceBlockToken token;
 
     public void constantName(String name) {
         this.constantName = name;
     }
 
-    public void javadocs(List<String> javadocs) {
-        this.javadocs = javadocs;
+    public void javadocs(CharSequenceBlockToken token) {
+        this.token = token;
     }
 
     public String constantName() {
         return this.constantName;
     }
 
-    public List<String> javadocs() {
-        return this.javadocs;
+    public CharSequenceBlockToken javadocs() {
+        return this.token;
     }
 
     public boolean isComplete() {
-        return this.constantName != null && this.javadocs != null;
+        return this.constantName != null && this.token != null;
     }
 }

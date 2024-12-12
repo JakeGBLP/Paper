@@ -10,7 +10,6 @@ import io.papermc.typewriter.parser.token.TokenType;
 import io.papermc.typewriter.replace.SearchMetadata;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -30,10 +29,10 @@ public class VillagerProfessionRewriter extends RegistryFieldRewriter<VillagerPr
         TokenType.SINGLE_COMMENT
     );
 
-    private @MonotonicNonNull Map<String, List<String>> javadocsPerConstant;
+    private @MonotonicNonNull Map<String, CharSequenceBlockToken> javadocsPerConstant;
 
-    private Map<String, List<String>> parseConstantJavadocs(String content) {
-        Map<String, List<String>> map = new HashMap<>();
+    private Map<String, CharSequenceBlockToken> parseConstantJavadocs(String content) {
+        Map<String, CharSequenceBlockToken> map = new HashMap<>();
 
         Lexer lex = new Lexer(content.toCharArray());
         SequenceTokens.wrap(lex, FORMAT_TOKENS)
@@ -41,7 +40,7 @@ public class VillagerProfessionRewriter extends RegistryFieldRewriter<VillagerPr
                 ConstantInfo info = new ConstantInfo();
                 action
                     .map(TokenType.JAVADOC, token -> {
-                        info.javadocs(((CharSequenceBlockToken) token).value());
+                        info.javadocs(((CharSequenceBlockToken) token));
                     }, TokenTaskBuilder::asOptional)
                     .skipQualifiedName(Predicate.isEqual(TokenType.JAVADOC))
                     .map(TokenType.IDENTIFIER, token -> {
@@ -91,20 +90,11 @@ public class VillagerProfessionRewriter extends RegistryFieldRewriter<VillagerPr
     }
 
     @Override
-    protected void rewriteJavadocs(Holder.Reference<VillagerProfession> reference, String indent, StringBuilder builder) {
+    protected void rewriteJavadocs(Holder.Reference<VillagerProfession> reference, String replacedContent, String indent, StringBuilder builder) {
         String constantName = this.rewriteFieldName(reference);
         if (this.javadocsPerConstant.containsKey(constantName)) {
-            builder.append(indent).append("/**");
-            builder.append('\n');
-            for (String line : this.javadocsPerConstant.get(constantName)) {
-                builder.append(indent).append(" *");
-                if (!line.isEmpty()) {
-                    builder.append(' ').append(line);
-                }
-                builder.append('\n');
-            }
-            builder.append(indent).append(" */");
-            builder.append('\n');
+            CharSequenceBlockToken token = this.javadocsPerConstant.get(constantName);
+            builder.append(indent).append(replacedContent, token.pos(), token.endPos()).append('\n');
         }
     }
 }

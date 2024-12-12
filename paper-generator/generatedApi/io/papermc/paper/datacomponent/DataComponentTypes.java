@@ -222,7 +222,7 @@ public final class DataComponentTypes {
      * <li>can't be changed or removed in Anvil</li>
      * <li>is not styled with italics when displayed to player</li>
      * <li>does not show labels where applicable
-     * (for example: banner markers, names in item frames)</li>
+     *      (for example: banner markers, names in item frames)</li>
      * </ul>
      *
      * @see #CUSTOM_NAME

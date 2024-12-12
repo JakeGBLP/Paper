@@ -74,7 +74,7 @@ public class RegistryFieldRewriter<T> extends SearchReplaceRewriter {
         while (referenceIterator.hasNext()) {
             Holder.Reference<T> reference = referenceIterator.next();
 
-            this.rewriteJavadocs(reference, metadata.indent(), builder);
+            this.rewriteJavadocs(reference, metadata.replacedContent(), metadata.indent(), builder);
 
             SingleFlagHolder requiredFeature = this.getRequiredFeature(reference);
             if (requiredFeature != null) {
@@ -98,7 +98,7 @@ public class RegistryFieldRewriter<T> extends SearchReplaceRewriter {
         }
     }
 
-    protected void rewriteJavadocs(Holder.Reference<T> reference, String indent, StringBuilder builder) {
+    protected void rewriteJavadocs(Holder.Reference<T> reference, String replacedContent, String indent, StringBuilder builder) {
     }
 
     protected boolean canPrintField(Holder.Reference<T> reference) {
